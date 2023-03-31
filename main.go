@@ -189,7 +189,7 @@ func release(source string, destination string) error {
 	if err != nil {
 		logrus.Warn("missing destination latest release")
 	} else {
-		if os.Getenv("NO_SKIP") != "true" && strings.Contains(*destinationRelease.Name, *sourceRelease.Name) {
+		if os.Getenv("NO_SKIP") != "true" && strings.Contains(*destinationRelease.Name, *sourceRelease.TagName) {
 			logrus.Info("already latest")
 			setActionOutput("skip", "true")
 			return nil
@@ -226,7 +226,7 @@ func release(source string, destination string) error {
 	if err != nil {
 		return err
 	}
-	setActionOutput("tag", *sourceRelease.Name)
+	setActionOutput("tagName", *sourceRelease.TagName)
 	return nil
 }
 
