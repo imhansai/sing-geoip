@@ -77,7 +77,7 @@ jobs:
           asset_name: geoip-cn.db
           asset_content_type: application/octet-stream
 
-      - name: Release geoip.db sha256sum
+      - name: Release geoip-cn.db sha256sum
         if: steps.build.outputs.skip != 'true'
         uses: actions/upload-release-asset@v1
         env:
@@ -87,3 +87,20 @@ jobs:
           asset_path: ./geoip-cn.db.sha256sum
           asset_name: geoip-cn.db.sha256sum
           asset_content_type: text/plain
+
+      - name: Git push assets to "release" branch
+        run: |
+          git init
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "17228526+github-actions[bot]@users.noreply.github.com"
+          git checkout -b release
+          git add geoip-cn.db
+          git add geoip.db
+          git commit -m "${{ env.RELEASE_NAME }}"
+          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push -f -u origin release
+
+      - name: CDN
+        run: |
+          curl -i "https://cdn.jsdelivr.net/gh/${{ github.repository }}@release/geoip-cn.db"
+          curl -i "https://cdn.jsdelivr.net/gh/${{ github.repository }}@release/geoip.db"
