@@ -93,17 +93,21 @@ jobs:
 
       - name: Git push assets to "release" branch
         run: |
+          install -Dp ./geoip-cn.db ./publish/geoip-cn.db
+          install -Dp ./geoip.db ./publish/geoip.db
+          cd publish || exit 1
           git init
           git config --local user.name "github-actions[bot]"
           git config --local user.email "17228526+github-actions[bot]@users.noreply.github.com"
           git checkout -b release
-          git add geoip-cn.db
-          git add geoip.db
+          git add .
           git commit -m "${{ env.RELEASE_NAME }}"
           git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git push -f -u origin release
 
       - name: CDN
         run: |
-          curl -i "https://cdn.jsdelivr.net/gh/${{ github.repository }}@release/geoip-cn.db"
-          curl -i "https://cdn.jsdelivr.net/gh/${{ github.repository }}@release/geoip.db"
+          cd publish || exit 1
+          for file in $(ls); do
+            curl -i "https://cdn.jsdelivr.net/gh/${{ github.repository }}@release/${file}"
+          done
